@@ -8,6 +8,7 @@ import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 // @ts-ignore
 import oracledb from 'oracledb';
+import os from 'os';
 import path from 'path';
 
 const app = express();
@@ -23,15 +24,21 @@ app.use(helmet());
 
 app.get('/query', async (req: Request, res: Response) => {
   try {
-    const { text } = req.query;
+    const { text, api_key } = req.query;
+
+    if (process.env.API_KEY !== api_key) {
+      return res.status(401).send('unauthorized');
+    }
 
     const querySearch = String(text)
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
 
-    oracledb.initOracleClient({
-      libDir: path.resolve(__dirname, 'instantclient_21_10'),
-    });
+    if (os.platform() === 'win32') {
+      oracledb.initOracleClient({
+        libDir: path.resolve(__dirname, 'instantclient_21_10'),
+      });
+    }
 
     const connection = await oracledb.getConnection({
       user: process.env.ORACLE_SICRI_USER,
