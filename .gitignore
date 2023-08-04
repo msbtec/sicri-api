@@ -1,0 +1,8 @@
+node_modules
+instantclient_21_10
+.env
+ormconfig.json
+dist
+yarn.lock
+yarn-error.log
+package-lock.json
